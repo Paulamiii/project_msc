@@ -1,0 +1,146 @@
+with open('forms_for_parsing.txt') as f:
+    for line in f:
+        key = line.split(' ')[0]
+        writer = line.split(' ')[1]
+        d[key] = writer
+print(len(d.keys()))
+
+We have a file called forms for parsing txt which contains the names of the images and the corresponding labels/informations/annotations.We store the file names as keys and the labels as values in the dictionary d.
+
+tmp = []
+target_list = []
+
+path_to_files ="data1"
+print(path_to_files)
+
+
+
+file_list = [os.path.join(path_to_files, filename) for filename in os.listdir(path_to_files) if os.path.isfile(os.path.join(path_to_files, filename))]
+
+tmp = []  # Create an empty list to store filenames
+target_list = []  # Create an empty list to store target values
+
+for filename in sorted(file_list):
+    tmp.append(filename)
+    image_name = os.path.basename(filename)  # Get only the filename from the path
+    file, ext = os.path.splitext(image_name)
+    parts = file.split('-')
+    form = parts[0] + '-' + parts[1]
+    for key in d:
+        if key == form:
+            target_list.append(str(d[form]))
+
+img_files = np.asarray(tmp)
+img_targets = np.asarray(target_list)
+print(img_files.shape)
+print(img_targets.shape)
+
+Here we are storing the image/file names in a list and the target variables/labels in another list by first comapring if the filenames actually exist as keys in the dictionary.
+
+train_files, rem_files, train_targets, rem_targets = train_test_split(
+        img_files, encoded_Y, train_size=0.66, random_state=52, shuffle= True)
+
+validation_files, test_files, validation_targets, test_targets = train_test_split(
+        rem_files, rem_targets, train_size=0.5, random_state=22, shuffle=True)
+
+print(train_files.shape, validation_files.shape, test_files.shape)
+print(train_targets.shape, validation_targets.shape, test_targets.shape)
+We are spltting the files in testing training and validation sets.
+
+
+def generate_data(samples, target_files,  batch_size=batch_size, factor = 0.1 ):
+    num_samples = len(samples)
+    from sklearn.utils import shuffle
+    while 1: # Loop forever so the generator never terminates
+        for offset in range(0, num_samples, batch_size):
+            batch_samples = samples[offset:offset+batch_size]
+            batch_targets = target_files[offset:offset+batch_size]
+
+            images = []
+            targets = []
+            for i in range(len(batch_samples)):
+                batch_sample = batch_samples[i]
+                batch_target = batch_targets[i]
+                im = Image.open(batch_sample)
+                cur_width = im.size[0]
+                cur_height = im.size[1]
+
+                # print(cur_width, cur_height)
+                height_fac = 113 / cur_height
+
+                new_width = int(cur_width * height_fac)
+                size = new_width, 113
+
+                imresize = im.resize((size), Image.ANTIALIAS)  # Resize so height = 113 while keeping aspect ratio
+                now_width = imresize.size[0]
+                now_height = imresize.size[1]
+                # Generate crops of size 113x113 from this resized image and keep random 10% of crops
+
+                avail_x_points = list(range(0, now_width - 113 ))# total x start points are from 0 to width -113
+
+                # Pick random x%
+                pick_num = int(len(avail_x_points)*factor)
+
+                # Now pick
+                random_startx = sample(avail_x_points,  pick_num)
+
+                for start in random_startx:
+                    imcrop = imresize.crop((start, 0, start+113, 113))
+                    images.append(np.asarray(imcrop))
+                    targets.append(batch_target)
+
+            # trim image to only see section with road
+            X_train = np.array(images)
+            y_train = np.array(targets)
+
+This piece of code here is primarily used to resize and crop the image. The image is set to a height of 113 pixels and the corresposnding width is caluculated so that we do not loose the as pect ratio.Then random starting points are selected in the image to start cropping the image.The cropped images are then put into an array and converted into float data type.
+
+model = Sequential()
+model.add(ZeroPadding2D((1, 1), input_shape=(row, col, ch))
+we use the sequential class of keras to create a linear stack of layers where each layer follows the previous layer.We add a padding zeros around the image.It helps the model to capture edge information accurately.We then resize the image to allow for easy computation.
+
+model.add(Convolution2D(filters= 32, kernel_size =(5,5), strides= (2,2), padding='same', name='conv1')) #96
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2,2),strides=(2,2), name='pool1'))
+
+model.add(Convolution2D(filters= 64, kernel_size =(3,3), strides= (1,1), padding='same', name='conv2'))  #256
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2,2),strides=(2,2), name='pool2'))
+
+model.add(Convolution2D(filters= 128, kernel_size =(3,3), strides= (1,1), padding='same', name='conv3'))  #256
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2,2),strides=(2,2), name='pool3'))
+
+We then add the convolutional layers to extract features from the images.We first start with 32 filters in the layer with 5*5 dimensions which slide over the image to extract features.We specify a stride of 2,2 meaning it will move around the image in steps of 2 pixels.In the subsequent convolutional layers the number of filters were increased to extract higher level features.
+Then add 2 maxsplooing layers to downsample the feature maps.
+
+model.add(Activation('relu'))
+model.add(Dropout(0.5))
+
+model.add(Dense(256, name='dense2'))  
+Dense layers connect neurons from previous layer to the current layer in order to learn patterns.We have 512 neurons in the first dense layer and 256 in the current dense layer.
+#1024
+model.add(Activation('relu')) relu is rectified linear Activation if the input to the activation layer is greater than 0 then it is the value itslef.If it is less than zero then it will be 0.
+model.add(Dropout(0.5)) Dropout is used to prevent overfitting.During each training 50 % of the neurons will be disabled in the layer.
+
+model.add(Dense(num_classes,name='output'))
+model.add(Activation('softmax'))  #softmax since output is within 50 classes
+
+model.compile(loss='categorical_crossentropy', optimizer=Adam(), metrics=['accuracy'])
+
+Loss is the difference between actual test values and the predicted values.Adam optimizer is used to optimize the weights during training to minimize the loss
+We then add 3 dense layers and a output layer.The neurons in the dense layers is fully connected to the previous layer and learns complex pattern.We use softmax activations to convert output scores into a probability for each class.
+
+We then use 5 epochs with 50 sample data per eopch and 842 validation sample.An epoch is one pass through the entire training dataset.During each epoch models weights are updated based on the training dataset in order to minimize loss function.
+
+
+Finally we are using keras ocr pipeline to extract text from the image.We use two pretrained model for text detection(CRAFT) and one other pretrained model for text recognotion.
+
+We create an instance of the detector class to for locating posistions of the text in the image.We use the pipline instance for combining both detection and recognition steps.crnn model is used to recognize the steps.This created pipeline will be used on the image and it will return a list of predicted texts.We then print the list of predicted words.
+
+***Activation layer is used to detrrmine whether or not or to what extent the neuron would fire***
+
+
+We used tensorflow tools here during image resizing.We used to keras here to build the neural network model.Convolutional,Activation and Maxpooling2d is used from keras here.We also use keras ocr pipelines to convert image to text.
+
+Here we have Scikit learn for LabelEncoding and splitting training and test data which is a part of one Dal and also we have used Intel Extension of tensorlfow gpu optimised.

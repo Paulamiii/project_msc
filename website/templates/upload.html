@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  
+  <!-- Basic Page Needs
+  ================================================== -->
+  <meta charset="utf-8">
+  <title>MEDISCAN</title>
+
+  <!-- Mobile Specific Metas
+  ================================================== -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="Bootstrap App Landing Template">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="author" content="Themefisher">
+  <meta name="generator" content="Themefisher Small Apps Template v1.0">
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" type="image/x-icon" href="images/favicon.png" />
+  
+  <!-- PLUGINS CSS STYLE 
+  <link rel="stylesheet" href="plugins/bootstrap/bootstrap.min.css">
+  
+
+  <link rel="stylesheet" href="plugins/themify-icons/themify-icons.css">
+  
+  <link rel="stylesheet" href="plugins/slick/slick.css">
+
+  <link rel="stylesheet" href="plugins/slick/slick-theme.css">
+
+  <link rel="stylesheet" href="plugins/fancybox/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="plugins/aos/aos.css">
+-->
+
+<link rel="stylesheet" href="{{url_for('static',filename='plugins/bootstrap/bootstrap.min.css')}}">
+<link rel="stylesheet" href="{{url_for('static',filename='plugins/themify-icons/themify-icons.css')}}">
+  <link rel="stylesheet" href="{{url_for('static',filename='plugins/slick/slick.css')}}">
+  <link rel="stylesheet" href="{{url_for('static',filename='plugins/slick/slick-theme.css')}}">
+  <link rel="stylesheet" href="{{url_for('static',filename='plugins/fancybox/jquery.fancybox.min.css')}}">
+  <link rel="stylesheet" href="{{url_for('static',filename='plugins/aos/aos.css')}}">
+
+
+
+  <!-- CUSTOM CSS -->
+  <link rel="stylesheet" href="{{url_for('static',filename='css/style.css')}}">
+
+</head>
+
+<body class="body-wrapper" data-spy="scroll" data-target=".privacy-nav">
+
+
+<section class="user-login section">
+	<div class="container">
+		<div class="row">
+			<div class="col-12">
+				<div class="block">
+					<!-- Image -->
+					<div class="image align-self-center"><img class="img-fluid" src="{{url_for('static',filename='images/upload.jpg')}}"
+							alt="desk-image"></div>
+					<!-- Content -->
+					<div class="content text-center">
+						<div class="logo">
+							<a href="index.html"><img src="{{url_for('static',filename='images/logo.png')}}" alt="" width="200px"></a>
+						</div>
+						<div class="title-text">
+							<h1>Upload your Prescription</h1>
+						</div>
+						<form method=post enctype="multipart/form-data" action="/upload_file">
+            <input type=file name=file class="form-control main" id="file-picker">
+            <input type=submit value=Upload class="btn btn-main-sm">
+            </form>
+						
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+
+  <!-- To Top -->
+  <div class="scroll-top-to">
+    <i class="ti-angle-up"></i>
+  </div>
+  
+  <!-- JAVASCRIPTS -->
+   <script src="{{url_for('static',filename='plugins/jquery/jquery.min.js')}}"></script>
+  <script src="{{url_for('static',filename='plugins/bootstrap/bootstrap.min.js')}}"></script>
+  <script src="{{url_for('static',filename='plugins/slick/slick.min.js')}}"></script>
+  <script src="{{url_for('static',filename='plugins/fancybox/jquery.fancybox.min.js')}}"></script>
+  <script src="{{url_for('static',filename='plugins/syotimer/jquery.syotimer.min.js')}}"></script>
+  <script src="{{url_for('static',filename='plugins/aos/aos.js')}}"></script>
+
+  <!-- google map -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAgeuuDfRlweIs7D6uo4wdIHVvJ0LonQ6g"></script>  
+  <script src="{{url_for('static',filename='js/script.js')}}"></script>
+
+  <script>
+    const imageInput = document.getElementById('file-picker');
+    const uploadedImage = document.getElementById('uploadedImage');
+
+    imageInput.addEventListener('change', function() {
+      const file = imageInput.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          uploadedImage.src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
+  <script src="{{url_for('static',filename='plugins/google-map/gmap.js')}}"></script>
+
+
+</body>
+
+</html>
