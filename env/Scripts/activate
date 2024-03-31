@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\MSC\project\Flask-Web-App-Tutorial-main\env"
+VIRTUAL_ENV="D:\WORK\PROJECT\PPK\project_msc\env"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
