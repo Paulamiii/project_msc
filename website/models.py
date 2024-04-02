@@ -18,6 +18,17 @@ class User(db.Model, UserMixin):
     notes = db.relationship('Note')
     #doctors=db.relationship('Doctor')
 
+class Medicine(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+    pack_size = db.Column(db.String(200), unique=False, nullable=False)
+
+class Reminder(db.Model):
+    id = db.Column(db.Integer, primary_key=True) 
+    user_id = db.Column(db.Integer,db.ForeignKey('user.id'),primary_key=True, nullable=False)
+    medicine_name = db.Column(db.String(100), nullable=False)
+    pack_size = db.Column(db.String(200), nullable=False)
+
 '''class Doctor(db.model):
     id=db.Column(db.Integer,primary_key=True)
     doct_name=db.Column(db.String(150))
