@@ -123,7 +123,7 @@
 					<div class="col-lg-6 offset-lg-3 col-12">
 						<!-- Error Inner -->
 						<div class="error-inner">
-							<h1 style="text-align : center">Result</h1>
+							<h2 style="text-align : center">Set your medicine time</h2>
 							<div class="container" style="width: 600px">
 								<form id="reminderForm" action="/addreminder" method="POST">
 									<table class="table" >
@@ -132,6 +132,7 @@
 												<th scope="col">ID</th>
 												<th scope="col">Medicine Name</th>
 												<th scope="col">Packet Size</th>
+												<th scope="col">Add Time</th>
 												<th scope="col">Add Reminder</th>
 											</tr>
 										</thead>
@@ -142,6 +143,8 @@
 												<td>{{ i[0] }}</td>
 												<td>{{ i[1] }}</td>
 												<td>{{ i[2] }}</td>
+												<td><input type="number" value="count" id="count"></td>
+												<td><input type="time" value="time" id="time"></td>
 												<td><input type="checkbox" name="selectedRows"></td>
 
 											</tr>
@@ -167,6 +170,9 @@
 									rowData.id = cells[0].textContent;
 									rowData.medicineName = cells[1].textContent;
 									rowData.packetSize = cells[2].textContent;
+									var timeInput = row.querySelector('input[type="time"]');
+									rowData.addtime=timeInput.value
+									
 									// Add more columns as needed
 									data.push(rowData);
 								});

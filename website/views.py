@@ -14,6 +14,12 @@ import numpy as np
 from PIL import Image
 from fuzzywuzzy import fuzz  
 
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from apscheduler.schedulers.background import BackgroundScheduler
+import datetime
+
 
 
 #Initialization Section
@@ -161,7 +167,7 @@ def process_file(file_path):
     return list_of_strings
 
 
-def get_medicine(extracted_medicines, accuracy_threshold=50):
+def get_medicine(extracted_medicines, accuracy_threshold=80):
     # Get all medicine objects from the database
     all_medicines = Medicine.query.all()
 
@@ -230,18 +236,56 @@ def reminder():
     print(reminder_data)
     return render_template("404.html", result=reminder_data, user=current_user)
 
+#send email 
+
+def send_email(task, email):
+    sender_email = "yourtask24x7@gmail.com"  # Replace with your email
+    receiver_email =email
+    password = "uwdn edhh wwoc dgcv"  # Replace with your email password
+
+    message = MIMEMultipart()
+    message["From"] = sender_email
+    message["To"] = receiver_email
+    message["Subject"] = "Reminder: Task Due"
+
+    body = f"Hello,\n\nThis is a reminder that you should take '{task}'  now.\n\nRegards,\nYour medicine Reminder"
+
+    message.attach(MIMEText(body, "plain"))
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        server.login(sender_email, password)
+        server.sendmail(sender_email, receiver_email, message.as_string())
 
 
+
+def check_tasks():
+    now = datetime.datetime.now().time()
+    for task in tasks:
+        task_time = datetime.datetime.strptime(task['time'], '%H:%M').time()
+        if now.hour == task_time.hour and now.minute == task_time.minute:
+            send_email(task['task'], task['email'])
+
+
+scheduler = BackgroundScheduler()
+scheduler.add_job(func=check_tasks, trigger="interval", seconds=60)
+scheduler.start()
+
+tasks=[]
 
 @views.route('/addreminder',methods=['POST'])
 def addreminder():
     if request.method == 'POST':
+        email=current_user.email
         data = request.json  # Extract JSON data from the request
         selected_medicines = []
         for row in data:
             selected_medicines.append((int(row['id']),row['medicineName'],row['packetSize']))
-
+            tasks.append({'task':row['medicineName'] , 'time':row['addtime'], 'email': email})
+            print(row['addtime'])
+            print(type(row['addtime']))
+            
         print(selected_medicines)
+        print(tasks)
 
         if current_user.is_authenticated:
             for medicine in selected_medicines:
@@ -251,6 +295,8 @@ def addreminder():
             db.session.commit()
             print("Data Added to database")
             # Redirect to a success page or another appropriate route
+        
+            
         else:
             # Handle case where user is not authenticated
             return render_template("login.html", user=current_user)
