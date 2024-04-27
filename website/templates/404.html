@@ -86,10 +86,10 @@
 								<div class="main-menu">
 									<nav class="navigation">
 										<ul class="nav menu">
-											<li class="active"><a href="/">Home</a>
+											<li ><a href="/">Home</a>
 											</li>
 											<li><a href="/upload">Upload </a></li>
-											<li><a href="/reminder">Reminder </a></li>									
+											<li class="active"><a href="/reminder">Reminder </a></li>									
 											<li><a href="/contact">Contact Us</a></li>
 										</ul>
 									</nav>
@@ -134,7 +134,8 @@
 												<th scope="col">ID</th>
 												<th scope="col">Medicine Name</th>
 												<th scope="col">Packet Size</th>
-												
+												<th scope="col">Time</th>
+												<th scope="col">Delete Medicine</th>
 												
 											</tr>
 										</thead>
@@ -144,8 +145,8 @@
 													<td>{{ i[0] }}</td>
 													<td>{{ i[1] }}</td>
 													<td>{{ i[2] }}</td>
-													
-													
+													<td>{{ i[3] }}</td>
+													<td><a href="/delmedicine?id={{ i[0] }}&user_id={{ current_user.id }}&medicine_name={{i[1]}}&pack_size={{i[2]}}&time={{i[3]}}"><i class="fa fa-trash"></i></a></td>
 												</tr>
 											{% endfor %}
 										</tbody>

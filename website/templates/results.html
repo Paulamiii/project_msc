@@ -143,7 +143,6 @@
 												<td>{{ i[0] }}</td>
 												<td>{{ i[1] }}</td>
 												<td>{{ i[2] }}</td>
-												<td><input type="number" value="count" id="count"></td>
 												<td><input type="time" value="time" id="time"></td>
 												<td><input type="checkbox" name="selectedRows"></td>
 
@@ -152,11 +151,12 @@
 											{% endfor %}
 										</tbody>
 									</table>
-									<button type="submit" class="btn btn-primary">Add As Reminder</button>
+									<button type="submit" class="btn btn-primary" id="confirm">Add As Reminder</button>
 								</form>
 							</div>
 							
 							<script>
+								
 								document.getElementById("reminderForm").addEventListener("submit", function(event) {
 								event.preventDefault(); // Prevent default form submission
 								var form = event.target;
@@ -171,9 +171,7 @@
 									rowData.medicineName = cells[1].textContent;
 									rowData.packetSize = cells[2].textContent;
 									var timeInput = row.querySelector('input[type="time"]');
-									rowData.addtime=timeInput.value
-									
-									// Add more columns as needed
+									rowData.addtime=timeInput.value									
 									data.push(rowData);
 								});
 
@@ -186,6 +184,14 @@
 									if (xhr.readyState === XMLHttpRequest.DONE) {
 										// Handle response from server if needed
 										console.log(xhr.responseText);
+										if (xhr.status === 200) {
+											
+											alert("Medicines added successfully");
+										}
+										else
+										{
+											alert("Medicines not added");
+										}
 									}
 								};
 								xhr.send(JSON.stringify(data));

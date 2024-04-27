@@ -26,8 +26,9 @@ class Medicine(db.Model):
 class Reminder(db.Model):
     id = db.Column(db.Integer, primary_key=True) 
     user_id = db.Column(db.Integer,db.ForeignKey('user.id'),primary_key=True, nullable=False)
-    medicine_name = db.Column(db.String(100), nullable=False)
-    pack_size = db.Column(db.String(200), nullable=False)
+    medicine_name = db.Column(db.String(100), primary_key=True, nullable=False)
+    pack_size = db.Column(db.String(200), primary_key=True, nullable=False)
+    time = db.Column(db.String(200), primary_key=True, nullable=False)
 
 '''class Doctor(db.model):
     id=db.Column(db.Integer,primary_key=True)

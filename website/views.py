@@ -232,7 +232,7 @@ def upload_file():
 @login_required
 def reminder(): 
     reminder_meds = Reminder.query.filter_by(user_id=current_user.id).all()
-    reminder_data = [(reminder.id, reminder.medicine_name, reminder.pack_size) for reminder in reminder_meds]
+    reminder_data = [(reminder.id, reminder.medicine_name, reminder.pack_size,reminder.time) for reminder in reminder_meds]
     print(reminder_data)
     return render_template("404.html", result=reminder_data, user=current_user)
 
@@ -277,19 +277,18 @@ def addreminder():
     if request.method == 'POST':
         email=current_user.email
         data = request.json  # Extract JSON data from the request
+        print("\n\n\n Extracted Data : ",data,"\n\n\n")
         selected_medicines = []
         for row in data:
-            selected_medicines.append((int(row['id']),row['medicineName'],row['packetSize']))
+            selected_medicines.append((int(row['id']),row['medicineName'],row['packetSize'],row['addtime']))
             tasks.append({'task':row['medicineName'] , 'time':row['addtime'], 'email': email})
-            print(row['addtime'])
-            print(type(row['addtime']))
             
         print(selected_medicines)
         print(tasks)
 
         if current_user.is_authenticated:
             for medicine in selected_medicines:
-                    reminder = Reminder(id=medicine[0],user_id=current_user.id, medicine_name=medicine[1], pack_size=medicine[2])
+                    reminder = Reminder(id=medicine[0],user_id=current_user.id, medicine_name=medicine[1], pack_size=medicine[2], time=medicine[3])
                     db.session.add(reminder)
             # Commit the changes to the database
             db.session.commit()
@@ -304,3 +303,36 @@ def addreminder():
     return redirect(url_for("views.reminder"))
     
 #----------------------------------------------------------------
+
+
+# Delete Medicine from Reminder
+@views.route('/delmedicine', methods=['GET'])
+def del_medicine():
+    if request.method == 'GET':
+        # Extract parameters from the query string
+        medicine_id = request.args.get('id')
+        user_id = request.args.get('user_id')
+        medicine_name = request.args.get('medicine_name')
+        pack_size = request.args.get('pack_size')
+        time = request.args.get('time')
+
+        if all([medicine_id, user_id, medicine_name, pack_size, time]):
+            # Query the database for the medicine with the given fields
+            medicine_to_delete = Reminder.query.filter_by(
+                id=medicine_id,
+                user_id=user_id,
+                medicine_name=medicine_name,
+                pack_size=pack_size,
+                time=time
+            ).first()
+
+            if medicine_to_delete:
+                db.session.delete(medicine_to_delete)
+                db.session.commit()
+                print("Medicine deleted successfully.")
+            else:
+                print("Medicine not found.")
+        else:
+            print("Missing parameters.")
+
+    return redirect(url_for("views.reminder"))
