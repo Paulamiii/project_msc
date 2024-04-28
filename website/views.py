@@ -232,7 +232,7 @@ def upload_file():
 @login_required
 def reminder(): 
     reminder_meds = Reminder.query.filter_by(user_id=current_user.id).all()
-    reminder_data = [(reminder.id, reminder.medicine_name, reminder.pack_size,reminder.time) for reminder in reminder_meds]
+    reminder_data = [(reminder.id, reminder.medicine_name, reminder.pack_size,reminder.time,reminder.status) for reminder in reminder_meds]
     print(reminder_data)
     return render_template("404.html", result=reminder_data, user=current_user)
 
@@ -288,7 +288,7 @@ def addreminder():
 
         if current_user.is_authenticated:
             for medicine in selected_medicines:
-                    reminder = Reminder(id=medicine[0],user_id=current_user.id, medicine_name=medicine[1], pack_size=medicine[2], time=medicine[3])
+                    reminder = Reminder(id=medicine[0],user_id=current_user.id, medicine_name=medicine[1], pack_size=medicine[2], time=medicine[3], status=0)
                     db.session.add(reminder)
             # Commit the changes to the database
             db.session.commit()
@@ -335,4 +335,30 @@ def del_medicine():
         else:
             print("Missing parameters.")
 
+    return redirect(url_for("views.reminder"))
+
+
+
+#----------------------------------------------------------------
+
+
+# Update Medicine  Status from Reminder
+
+@views.route('/updatemedicinestatus', methods=['POST'])
+def update_medicine_status():
+    if request.method == 'POST':
+        data = request.json  # Extract JSON data from the request
+        print("\n\n\n Extracted Data : ", data, "\n\n\n")
+        
+        for row in data:
+            reminder = Reminder.query.filter_by(id=row['id']).first()  # Find the reminder by ID
+            if reminder:
+                reminder.status = 1  # Update the status to 1 (True)
+                db.session.commit()  # Commit the changes to the database
+            else:
+                return jsonify({'message': 'Reminder with ID {} not found'.format(row['id'])}), 404
+        
+        print("Status updated successfully")
+        return jsonify({'message': 'Status updated successfully'}), 200
+    
     return redirect(url_for("views.reminder"))

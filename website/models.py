@@ -29,6 +29,8 @@ class Reminder(db.Model):
     medicine_name = db.Column(db.String(100), primary_key=True, nullable=False)
     pack_size = db.Column(db.String(200), primary_key=True, nullable=False)
     time = db.Column(db.String(200), primary_key=True, nullable=False)
+    status = db.Column(db.Boolean, default=False, nullable=False)
+
 
 '''class Doctor(db.model):
     id=db.Column(db.Integer,primary_key=True)
